@@ -11,27 +11,32 @@
 <div id="toast-container"></div>
 
 <div class="container">
-  <h1>🌊 BlueXool Student Manager</h1>
+  <h1>🌊 Step to Excellence Student Database</h1>
 
   <section class="card">
     <h2>Add / Update Student</h2>
+<form id="studentForm">
+  <input type="hidden" id="id" />
 
-    <form id="studentForm">
-      <input type="hidden" id="id" />
+  <div class="form-grid">
+    <input type="text" id="name" placeholder="Student Name" required />
+    <input type="text" id="gender" placeholder="Gender" required />
 
-      <input type="text" id="name" placeholder="Name" required />
-      <input type="text" id="gender" placeholder="Gender (M/F)" required />
-      <input type="date" id="date_of_birth" placeholder="Date of Birth" required />
-      <input type="text" id="status" placeholder="Status" required />
-      <input type="text" id="guardian_name" placeholder="Guardian Name" required />
-      <input type="text" id="contact1" placeholder="Contact 1" required />
-      <input type="text" id="contact2" placeholder="Contact 2" />
+    <input type="date" id="date_of_birth" required />
+    <input type="text" id="status" placeholder="Status (Active / Inactive)" required />
 
-      <div class="actions">
-        <button type="submit">Save Student</button>
-        <button type="button" class="secondary" onclick="resetForm()">Clear</button>
-      </div>
-    </form>
+    <input type="text" id="guardian_name" placeholder="Guardian Name" required />
+    <input type="text" id="contact1" placeholder="Primary Contact" required />
+
+    <input type="text" id="contact2" placeholder="Secondary Contact (optional)" />
+  </div>
+
+  <div class="actions">
+    <button type="submit">Save Student</button>
+    <button type="button" class="secondary" onclick="resetForm()">Clear</button>
+  </div>
+</form>
+
   </section>
 
   <section class="card">
@@ -45,23 +50,25 @@
       style="margin-bottom: 10px; padding: 8px; width: 100%; border-radius: 6px; border: none;"
     />
 
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Gender</th>
-          <th>DOB</th>
-          <th>Status</th>
-          <th>Guardian</th>
-          <th>Contact 1</th>
-          <th>Contact 2</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="students"></tbody>
-    </table>
-  </section>
+    <div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Gender</th>
+        <th>DOB</th>
+        <th>Status</th>
+        <th>Guardian</th>
+        <th>Contact 1</th>
+        <th>Contact 2</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="students"></tbody>
+  </table>
+</div>
+
 </div>
 
 <script src="/static/app.js"></script>
