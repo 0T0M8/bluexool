@@ -34,7 +34,11 @@ async function loadStudents() {
                 <td>${s.name}</td>
                 <td>${s.gender}</td>
                 <td>${s.date_of_birth}</td>
-                <td>${s.status}</td>
+                <td>
+                  <span class="status-pill ${s.status === "Active" ? "status-active" : "status-inactive"}">
+                  ${s.status}
+                  </span>
+                </td>
                 <td>${s.guardian_name}</td>
                 <td>${s.contact1}</td>
                 <td>${s.contact2}</td>

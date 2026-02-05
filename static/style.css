@@ -48,10 +48,46 @@ table {
   min-width: 1000px;
 }
 
+/* ================= ACTION BUTTONS IN TABLE ================= */
+td button {
+  display: inline-block;
+  margin-left: 5px;   /* spacing between buttons */
+  margin-right: 0;
+  white-space: nowrap; /* prevent buttons from breaking onto new line */
+}
+
+td:last-child {
+  display: flex;
+  justify-content: flex-end; /* keep buttons right-aligned */
+  align-items: center;       /* vertical center */
+  gap: 5px;                  /* small spacing between buttons */
+}
+
+
 /* ===== RESPONSIVE ===== */
 
 @media (max-width: 768px) {
   .form-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ===== STATUS PILL BADGES ===== */
+.status-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  color: white;
+  min-width: 70px;
+}
+
+.status-active {
+  background-color: #16a34a; /* green */
+}
+
+.status-inactive {
+  background-color: #dc2626; /* red */
 }
