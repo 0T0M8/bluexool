@@ -1,3 +1,4 @@
+/* ================= GLOBAL ================= */
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, sans-serif; background: #0f172a; color: #e5e7eb; }
 .container { max-width: 900px; margin: auto; padding: 30px; }
@@ -5,9 +6,9 @@ h1 { text-align: center; margin-bottom: 30px; }
 .card { background: #020617; padding: 20px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
 h2 { margin-top: 0; }
 form { display: flex; flex-direction: column; gap: 12px; }
-input { padding: 12px; border-radius: 6px; border: none; font-size: 16px; }
+input, select { padding: 12px; border-radius: 6px; border: none; font-size: 16px; background: #0f172a; color: #e5e7eb; }
 .actions { display: flex; gap: 10px; }
-button { padding: 10px 16px; border-radius: 6px; border: none; background: #2563eb; color: white; cursor: pointer; }
+button { padding: 10px 16px; border-radius: 6px; border: none; background: #2563eb; color: white; cursor: pointer; transition: background 0.2s; }
 button:hover { background: #1d4ed8; }
 button.secondary { background: #374151; }
 button.danger { background: #dc2626; }
@@ -25,69 +26,75 @@ td:last-child, th:last-child { text-align: right; }
 .toast.info    { background: #3498db; }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
-/* ===== FORM GRID ===== */
 
+/* ================= FORM GRID ================= */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
-
 .form-grid input,
-.form-grid select {
-  width: 100%;
-}
+.form-grid select { width: 100%; }
 
-/* ===== TABLE SCROLL ===== */
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-table {
-  min-width: 1000px;
-}
+/* ================= TABLE SCROLL ================= */
+.table-wrapper { overflow-x: auto; }
+table { min-width: 1000px; }
 
 /* ================= ACTION BUTTONS IN TABLE ================= */
-td button {
-  display: inline-block;
-  margin-left: 5px;   /* spacing between buttons */
-  margin-right: 0;
-  white-space: nowrap; /* prevent buttons from breaking onto new line */
-}
+td button { display: inline-block; margin-left: 5px; margin-right: 0; white-space: nowrap; }
+td:last-child { display: flex; justify-content: flex-end; align-items: center; gap: 5px; }
 
-td:last-child {
-  display: flex;
-  justify-content: flex-end; /* keep buttons right-aligned */
-  align-items: center;       /* vertical center */
-  gap: 5px;                  /* small spacing between buttons */
-}
+/* ================= STATUS PILL BADGES ================= */
+.status-pill { display: inline-block; padding: 4px 10px; border-radius: 50px; font-size: 13px; font-weight: 500; text-align: center; color: white; min-width: 70px; }
+.status-active { background-color: #16a34a; }
+.status-inactive { background-color: #dc2626; }
 
-
-/* ===== RESPONSIVE ===== */
-
+/* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
+  .form-grid { grid-template-columns: 1fr; }
 }
 
-/* ===== STATUS PILL BADGES ===== */
-.status-pill {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 50px;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: center;
-  color: white;
-  min-width: 70px;
+/* ================= STUDENT MODAL ================= */
+#studentModal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  overflow: auto;
 }
 
-.status-active {
-  background-color: #16a34a; /* green */
+#studentModal .modal-content {
+  background-color: #020617;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  position: relative;
+  animation: slideDown 0.3s ease;
 }
 
-.status-inactive {
-  background-color: #dc2626; /* red */
+#studentModal .close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  color: #e5e7eb;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
 }
+
+#studentModal .close:hover { color: #dc2626; }
+
+#studentModal p { margin: 8px 0; }
+
+#studentModal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+@keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }

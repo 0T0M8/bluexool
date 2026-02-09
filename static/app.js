@@ -13,6 +13,11 @@ const form = document.getElementById('studentForm');
 const tableBody = document.getElementById('students');
 const searchInput = document.getElementById('search');
 
+/* Modal Elements */
+const modal = document.getElementById('studentModal');
+const modalBody = document.getElementById('studentDetails');
+const modalClose = modal.querySelector('.close');
+
 /* Reset form */
 function resetForm() {
     form.reset();
@@ -42,18 +47,52 @@ async function loadStudents() {
                 <td>${s.guardian_name}</td>
                 <td>${s.contact1}</td>
                 <td>${s.contact2}</td>
-                <td>
-                    <button onclick='editStudent(${JSON.stringify(s)})'>Edit</button>
-                    <button class="danger" onclick="deleteStudent(${s.id})">Delete</button>
-                </td>
+                <td>▶</td>
             `;
+
+            // Row click opens modal
+            row.addEventListener('click', () => showStudentModal(s));
             tableBody.appendChild(row);
         });
-        filterStudents(); // apply current search filter
+        filterStudents();
     } catch (err) {
         showToast(err.message, 'error');
     }
 }
+
+/* =================== MODAL FUNCTIONS =================== */
+function showStudentModal(student) {
+    modalBody.innerHTML = `
+        <p><strong>ID:</strong> ${student.id}</p>
+        <p><strong>Name:</strong> ${student.name}</p>
+        <p><strong>Gender:</strong> ${student.gender}</p>
+        <p><strong>Date of Birth:</strong> ${student.date_of_birth}</p>
+        <p><strong>Status:</strong> ${student.status}</p>
+        <p><strong>Guardian:</strong> ${student.guardian_name}</p>
+        <p><strong>Contact 1:</strong> ${student.contact1}</p>
+        <p><strong>Contact 2:</strong> ${student.contact2}</p>
+    `;
+
+    modal.style.display = 'block';
+
+    const editBtn = document.getElementById('editStudentBtn');
+    editBtn.onclick = () => {
+        editStudent(student);
+        modal.style.display = 'none';
+    };
+
+    const deleteBtn = document.getElementById('deleteStudentBtn');
+    deleteBtn.onclick = async () => {
+        if (!confirm(`Are you sure you want to delete ${student.name}?`)) return;
+        await deleteStudent(student.id);
+        modal.style.display = 'none';
+        loadStudents();
+    };
+}
+
+/* Close modal */
+modalClose.onclick = () => modal.style.display = 'none';
+window.onclick = e => { if (e.target == modal) modal.style.display = 'none'; };
 
 /* =================== EDIT STUDENT =================== */
 function editStudent(student) {
