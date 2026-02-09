@@ -1,15 +1,34 @@
+# Compiler & flags
 CC = gcc
 CFLAGS = -Wall -Wextra -O2 -Iincludes
-
 LDFLAGS = -lsqlite3
 
-SRC = src/main.c src/router.c src/studentsdb.c src/http.c
+# Directories
+SRC_DIR = src
+BUILD_DIR = build
+SRC = $(wildcard $(SRC_DIR)/*.c)
+OBJ = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
+
+# Output binary
 OUT = bluexool
 
-all: $(OUT)
+# =================== TARGETS ===================
+.PHONY: all clean
 
-$(OUT): $(SRC)
-	$(CC) $(CFLAGS) -o $(OUT) $(SRC) $(LDFLAGS)
+all: $(BUILD_DIR) $(OUT)
 
+# Build binary from object files
+$(OUT): $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Build object files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Ensure build directory exists
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Clean build artifacts
 clean:
-	rm -f $(OUT)
+	rm -rf $(BUILD_DIR) $(OUT)
