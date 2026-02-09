@@ -115,15 +115,10 @@ int serve_static(int client, const char *url_path)
         get_mime_type(full), st.st_size);
 
     n = write(client, header, strlen(header));
-    if (n <= 0) {
-        close(client);
-        return;
-    }
+
+
     n = write(client, buf, st.st_size);
-    if (n <= 0) {
-        close(client);
-        return;
-    }
+    
     free(buf);
     return 1;
 }
