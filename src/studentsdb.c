@@ -9,15 +9,14 @@
 
 /* ================= INIT / CLOSE ================= */
 
+/* old db init was here */
 int db_init(sqlite3 **db)
 {
-    if (!db) return -1;
-    if (sqlite3_open(DB_PATH, db) != SQLITE_OK) {
-        fprintf(stderr, "Failed to open DB: %s\n", sqlite3_errmsg(*db));
+    if (sqlite3_open(DB_PATH, db) != SQLITE_OK)
         return -1;
-    }
 
     const char *sql =
+        /* students */
         "CREATE TABLE IF NOT EXISTS students ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "name TEXT NOT NULL,"
@@ -27,13 +26,28 @@ int db_init(sqlite3 **db)
         "guardian_name TEXT NOT NULL,"
         "contact1 TEXT NOT NULL,"
         "contact2 TEXT"
+        ");"
+
+        /* users */
+        "CREATE TABLE IF NOT EXISTS users ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "username TEXT UNIQUE NOT NULL,"
+        "password_hash TEXT NOT NULL,"
+        "created_at TEXT DEFAULT CURRENT_TIMESTAMP"
+        ");"
+
+        /* sessions */
+        "CREATE TABLE IF NOT EXISTS sessions ("
+        "id TEXT PRIMARY KEY,"
+        "user_id INTEGER NOT NULL,"
+        "expires_at TEXT,"
+        "FOREIGN KEY(user_id) REFERENCES users(id)"
         ");";
 
     char *err = NULL;
     if (sqlite3_exec(*db, sql, NULL, NULL, &err) != SQLITE_OK) {
-        fprintf(stderr, "Failed to create table: %s\n", err);
+        fprintf(stderr, "DB init error: %s\n", err);
         sqlite3_free(err);
-        sqlite3_close(*db);
         return -1;
     }
 

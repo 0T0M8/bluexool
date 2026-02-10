@@ -26,7 +26,30 @@ td:last-child, th:last-child { text-align: right; }
 .toast.info    { background: #3498db; }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
+/*===================New Toast Edits===========  */
+.toast {
+  animation:
+    toastIn 0.3s ease,
+    toastOut 0.4s ease 3s forwards;
+}
 
+@keyframes toastIn {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toastOut {
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
 /* ================= FORM GRID ================= */
 .form-grid {
   display: grid;
@@ -98,3 +121,58 @@ td:last-child { display: flex; justify-content: flex-end; align-items: center; g
 }
 
 @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* ================= MODAL ANIMATIONS ================= */
+
+.modal-overlay {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.student-modal {
+  transform: translateY(20px) scale(0.97);
+  opacity: 0;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.modal-overlay.show .student-modal {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* ================= TABLE ROW INTERACTION ================= */
+
+tbody tr {
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+tbody tr:hover {
+  background: #020617;
+  transform: translateY(-1px);
+}
+
+/* ================= BUTTON MICRO INTERACTIONS ================= */
+
+button {
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
