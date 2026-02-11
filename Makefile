@@ -1,7 +1,7 @@
 # Compiler & flags
 CC = gcc
 CFLAGS = -Wall -Wextra -O2 -Iincludes
-LDFLAGS = -lsqlite3
+LDFLAGS = -lsqlite3 ./lib/libbcrypt.a 
 
 # Directories
 SRC_DIR = src
