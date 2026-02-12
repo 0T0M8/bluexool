@@ -8,26 +8,123 @@ function showToast(message, type = 'info') {
     setTimeout(() => toast.remove(), 3500);
 }
 
-/* =================== FORM & TABLE =================== */
+/* =================== SCREENS =================== */
+const loginScreen = document.getElementById('loginScreen');
+const registerScreen = document.getElementById('registerScreen');
+const appScreen = document.getElementById('appScreen');
+
+function showLoginScreen() {
+    loginScreen.style.display = 'block';
+    registerScreen.style.display = 'none';
+    appScreen.style.display = 'none';
+}
+
+function showRegisterScreen() {
+    loginScreen.style.display = 'none';
+    registerScreen.style.display = 'block';
+    appScreen.style.display = 'none';
+}
+
+function showAppScreen() {
+    loginScreen.style.display = 'none';
+    registerScreen.style.display = 'none';
+    appScreen.style.display = 'block';
+}
+
+/* =================== SESSION CHECK =================== */
+async function checkSession() {
+    try {
+        const res = await fetch('/students');
+        if (res.status === 401) {
+            showLoginScreen();
+        } else {
+            showAppScreen();
+            loadStudents();
+        }
+    } catch (err) {
+        showLoginScreen();
+    }
+}
+
+/* =================== LOGIN =================== */
+const loginForm = document.getElementById('loginForm');
+loginForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const result = await res.json();
+        if (res.status === 200) {
+            showToast('Login successful!', 'success');
+            showAppScreen();
+            loadStudents();
+        } else throw new Error(result.error || 'Login failed');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+});
+
+/* =================== REGISTER =================== */
+const registerForm = document.getElementById('registerForm');
+registerForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const username = document.getElementById('regUsername').value;
+    const password = document.getElementById('regPassword').value;
+
+    try {
+        const res = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const result = await res.json();
+        if (res.status === 200 || res.status === 201) {
+            showToast('Registration successful! Please login.', 'success');
+            showLoginScreen();
+        } else throw new Error(result.error || 'Registration failed');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+});
+
+/* =================== LOGOUT =================== */
+const logoutBtn = document.getElementById('logoutBtn');
+logoutBtn.addEventListener('click', async () => {
+    try {
+        await fetch('/logout', { method: 'POST' });
+        showToast('Logged out', 'info');
+        showLoginScreen();
+    } catch (err) {
+        showToast('Failed to logout', 'error');
+    }
+});
+
+/* =================== STUDENT CRUD =================== */
 const form = document.getElementById('studentForm');
 const tableBody = document.getElementById('students');
 const searchInput = document.getElementById('search');
-
-/* Modal Elements */
 const modal = document.getElementById('studentModal');
 const modalBody = document.getElementById('studentDetails');
 const modalClose = modal.querySelector('.close');
 
-/* Reset form */
 function resetForm() {
     form.reset();
     document.getElementById('id').value = '';
 }
 
-/* =================== LOAD STUDENTS =================== */
 async function loadStudents() {
     try {
         const res = await fetch('/students');
+        if (res.status === 401) { 
+            showLoginScreen();
+            return;
+        }
         if (!res.ok) throw new Error('Failed to fetch students');
         const students = await res.json();
 
@@ -49,8 +146,6 @@ async function loadStudents() {
                 <td>${s.contact2}</td>
                 <td>▶</td>
             `;
-
-            // Row click opens modal
             row.addEventListener('click', () => showStudentModal(s));
             tableBody.appendChild(row);
         });
@@ -60,7 +155,7 @@ async function loadStudents() {
     }
 }
 
-/* =================== MODAL FUNCTIONS =================== */
+/* =================== MODAL & CRUD FUNCTIONS =================== */
 function showStudentModal(student) {
     modalBody.innerHTML = `
         <p><strong>ID:</strong> ${student.id}</p>
@@ -74,27 +169,21 @@ function showStudentModal(student) {
     `;
 
     modal.style.display = 'block';
-
-    const editBtn = document.getElementById('editStudentBtn');
-    editBtn.onclick = () => {
+    document.getElementById('editStudentBtn').onclick = () => {
         editStudent(student);
         modal.style.display = 'none';
     };
-
-    const deleteBtn = document.getElementById('deleteStudentBtn');
-    deleteBtn.onclick = async () => {
-        if (!confirm(`Are you sure you want to delete ${student.name}?`)) return;
+    document.getElementById('deleteStudentBtn').onclick = async () => {
+        if (!confirm(`Delete ${student.name}?`)) return;
         await deleteStudent(student.id);
         modal.style.display = 'none';
         loadStudents();
     };
 }
 
-/* Close modal */
 modalClose.onclick = () => modal.style.display = 'none';
-window.onclick = e => { if (e.target == modal) modal.style.display = 'none'; };
+window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
 
-/* =================== EDIT STUDENT =================== */
 function editStudent(student) {
     document.getElementById('id').value = student.id;
     document.getElementById('name').value = student.name;
@@ -107,7 +196,7 @@ function editStudent(student) {
     showToast('Editing student ID ' + student.id, 'info');
 }
 
-/* =================== ADD / UPDATE STUDENT =================== */
+/* =================== FORM SUBMIT =================== */
 form.addEventListener('submit', async e => {
     e.preventDefault();
     const id = document.getElementById('id').value;
@@ -139,9 +228,8 @@ form.addEventListener('submit', async e => {
     }
 });
 
-/* =================== DELETE STUDENT =================== */
+/* =================== DELETE =================== */
 async function deleteStudent(id) {
-    if (!confirm('Are you sure you want to delete student ID ' + id + '?')) return;
     try {
         const res = await fetch(`/students?id=${id}`, { method: 'DELETE' });
         const result = await res.json();
@@ -153,9 +241,9 @@ async function deleteStudent(id) {
     }
 }
 
-/* =================== SEARCH / FILTER =================== */
+/* =================== SEARCH =================== */
 function filterStudents() {
-    const filter = searchInput.value.toLowerCase();
+    const filter = document.getElementById('search').value.toLowerCase();
     const rows = tableBody.querySelectorAll('tr');
     rows.forEach(row => {
         const cells = row.querySelectorAll('td');
@@ -163,7 +251,9 @@ function filterStudents() {
         row.style.display = match ? '' : 'none';
     });
 }
-searchInput.addEventListener('input', filterStudents);
+document.getElementById('search').addEventListener('input', filterStudents);
 
-/* =================== INITIAL LOAD =================== */
-loadStudents();
+/* =================== INITIALIZATION =================== */
+document.addEventListener('DOMContentLoaded', () => {
+    checkSession();  // Show login if unauthorized
+});
