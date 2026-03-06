@@ -2,10 +2,10 @@
 
 CC       := gcc
 CFLAGS   := -Wall -Wextra -O2 -Iincludes
-LDLIBS   := -lsqlite3
+LDLIBS   := -lsqlite3 -lcrypt
 
 # bcrypt (portable version)
-BCRYPT_DIR := lib/libbcrypt/portable_bcrypt
+BCRYPT_DIR := lib
 BCRYPT_LIB := $(BCRYPT_DIR)/bcrypt.a
 
 # Directories
@@ -36,8 +36,8 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 # Build bcrypt automatically if missing
-$(BCRYPT_LIB):
-	$(MAKE) -C $(BCRYPT_DIR)
+#$(BCRYPT_LIB):
+#	$(MAKE) -C $(BCRYPT_DIR)
 
 clean:
 	rm -rf $(BUILD_DIR) $(OUT)
