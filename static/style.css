@@ -1,3 +1,74 @@
+/* ================= LOGIN & REGISTER - DASHBOARD COLORS ================= */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #0f172a; /* dashboard background */
+}
+
+.login-card {
+  background: #020617; /* dashboard card color */
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  width: 100%;
+  max-width: 380px;
+  color: #e5e7eb;
+}
+
+.login-card h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #e5e7eb;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: 6px;
+  border: 1px solid #374151;
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+.login-card input::placeholder {
+  color: #94a3b8;
+}
+
+.login-card button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.login-card button:hover {
+  background: #1d4ed8;
+}
+
+.login-card .toggle-link {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 14px;
+  color: #cbd5f5;
+}
+
+.login-card .toggle-link a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.login-card .toggle-link a:hover {
+  text-decoration: underline;
+}
+
 /* ================= GLOBAL ================= */
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, sans-serif; background: #0f172a; color: #e5e7eb; }
