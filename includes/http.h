@@ -1,16 +1,21 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-void send_response(int client, const char *type, const char *body);
-char *get_body(const char *req);
-char *get_query_param(const char *req, const char *key);
+#include <stddef.h>
 
-/* NEW: simple JSON helpers */
-int json_get_string(const char *json, const char *key, char *out, int max);
-int json_get_int(const char *json, const char *key, int *out);
+typedef struct {
+    char method[8];
+    char path[256];
+    char body[1024];
+} HttpRequest;
 
-/* static */
-const char *get_mime_type(const char *path);
-int serve_static(int client, const char *url_path);
+typedef struct {
+    int status;
+    char body[1024];
+} HttpResponse;
+
+void http_start(int port);
+HttpRequest http_parse_request(const char *raw_request);
+void http_send_response(int client_socket, HttpResponse *res);
 
 #endif

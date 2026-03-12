@@ -1,44 +1,29 @@
-# =================== CONFIG ===================
+# Compiler and flags
+CC = gcc
+CFLAGS = -Wall -Wextra -Iincludes
 
-CC       := gcc
-CFLAGS   := -Wall -Wextra -O2 -Iincludes
-LDLIBS   := -lsqlite3 -lcrypt
+# Source files
+SRC = src/http.c src/router.c src/middleware.c src/services.c src/core.c src/main.c
 
-# bcrypt (portable version)
-BCRYPT_DIR := lib
-BCRYPT_LIB := $(BCRYPT_DIR)/bcrypt.a
+# Object files
+OBJ = build/http.o build/router.o build/middleware.o build/services.o build/core.o build/main.o
 
-# Directories
-SRC_DIR   := src
-BUILD_DIR := build
+# Executable
+EXEC = build/bluexool
 
-SRC := $(wildcard $(SRC_DIR)/*.c)
-OBJ := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
+all: $(EXEC)
 
-OUT := bluexool
+# Link object files with bcrypt static library and SQLite
+# ⚠️ Note: we directly reference the bcrypt .a file here
+$(EXEC): $(OBJ)
+	$(CC) -o $@ $^ lib/bcrypt.a -lsqlite3
 
-# =================== TARGETS ===================
-
-.PHONY: all clean
-
-all: $(OUT)
-
-# Link final binary
-$(OUT): $(OBJ) $(BCRYPT_LIB)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
-
-# Build object files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+# Compile C files to object files
+build/%.o: src/%.c
+	@mkdir -p build
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Ensure build directory exists
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-
-# Build bcrypt automatically if missing
-#$(BCRYPT_LIB):
-#	$(MAKE) -C $(BCRYPT_DIR)
-
 clean:
-	rm -rf $(BUILD_DIR) $(OUT)
-	$(MAKE) -C $(BCRYPT_DIR) clean
+	rm -rf build/*
+
+.PHONY: all clean
