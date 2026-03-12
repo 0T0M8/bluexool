@@ -2,15 +2,13 @@
 #define MIDDLEWARE_H
 
 #include "http.h"
-#include "router.h"
 
-// Middleware function type: returns 1 to continue, 0 to stop
-typedef int (*MiddlewareFunc)(HttpRequest *req, HttpResponse *res);
+typedef int (*Middleware)(HttpRequest *, HttpResponse *);
 
-// Register a middleware function
-void middleware_register(MiddlewareFunc func);
-
-// Execute all middleware for a request
+void middleware_register(Middleware m);
 int middleware_execute(HttpRequest *req, HttpResponse *res);
+
+/* add this line */
+int auth_middleware(HttpRequest *req, HttpResponse *res);
 
 #endif

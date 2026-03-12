@@ -18,6 +18,24 @@ void handle_sigint(int sig) {
     exit(0);
 }
 
+void http_parse_request(char *buffer, HttpRequest *req) {
+    sscanf(buffer, "%7s %127s", req->method, req->path);
+
+    char *header_start = strstr(buffer, "\r\n") + 2;
+    char *body_start = strstr(buffer, "\r\n\r\n");
+
+    if (body_start) {
+        strncpy(req->headers, header_start, body_start - header_start);
+        req->headers[body_start - header_start] = '\0';
+
+        strcpy(req->body, body_start + 4);
+    } else {
+        strcpy(req->headers, header_start);
+        req->body[0] = '\0';
+    }
+}
+
+/*
 HttpRequest http_parse_request(const char *raw_request) {
     HttpRequest req = {0};
     // parse method and path
@@ -31,7 +49,7 @@ HttpRequest http_parse_request(const char *raw_request) {
 
     return req;
 }
-
+*/
 void http_start(int port) {
     struct sockaddr_in addr;
     char buffer[2048];
@@ -69,8 +87,9 @@ void http_start(int port) {
         buffer[n] = '\0';
 
         // After
-HttpRequest req = http_parse_request(buffer);
-HttpResponse res = {200, ""};
+HttpRequest req;
+http_parse_request(buffer, &req);
+HttpResponse res = {0};
 //router_handle(&req, &res);
 if (middleware_execute(&req, &res)) {
     router_handle(&req, &res);

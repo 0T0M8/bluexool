@@ -7,6 +7,7 @@ typedef struct {
     char method[8];
     char path[256];
     char body[1024];
+    char headers[256];
 } HttpRequest;
 
 typedef struct {
@@ -15,7 +16,7 @@ typedef struct {
 } HttpResponse;
 
 void http_start(int port);
-HttpRequest http_parse_request(const char *raw_request);
+void http_parse_request(char *buffer, HttpRequest *req);
 void http_send_response(int client_socket, HttpResponse *res);
 
 #endif
