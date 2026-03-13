@@ -1,18 +1,31 @@
+// services.h
+
 #ifndef SERVICES_H
 #define SERVICES_H
 
-#include "http.h"
+#include <sqlite3.h>
 
 typedef struct {
+    int id;
     char username[64];
+    char role[16];
+    int is_active;
+    char created_at[32];
 } User;
 
-void services_init();
+// Initialize DB, returns 1 on success, 0 on failure
+int services_init(const char *db_path);
 
-int services_validate_user(const char *username, const char *password);
+// Close DB
+void services_close(void);
+
+// Create a user, returns 1 on success
 int services_create_user(const char *username, const char *password);
 
-// Fetch user info for dashboard (dummy example)
-int services_get_user(const char *username, User *user);
+// Validate user login, returns 1 if password matches
+int services_validate_user(const char *username, const char *password);
 
-#endif
+// Get user info, returns 1 if found
+int services_get_user(const char *username, User *out_user);
+
+#endif // SERVICES_H

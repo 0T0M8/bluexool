@@ -150,7 +150,7 @@ static void login_handler(HttpRequest *req, HttpResponse *res)
 
 
 void core_run(int port) {
-    services_init();
+    services_init("db/students.db");
                                                     middleware_register(logger);
     middleware_register(auth_middleware);
 

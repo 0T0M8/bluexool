@@ -1,120 +1,153 @@
+// src/services.c
 #include "services.h"
 #include <stdio.h>
 #include <string.h>
 #include <sqlite3.h>
-#include <stdlib.h>
 #include "bcrypt.h"
 
+// Database pointer (open once)
 static sqlite3 *db = NULL;
 
-void services_init() {
-    if (sqlite3_open("db/students.db", &db) != SQLITE_OK) {
-        fprintf(stderr, "Cannot open DB: %s\n", sqlite3_errmsg(db));
-        exit(1);
+// -----------------------------
+// Initialize DB
+// -----------------------------
+int services_init(const char *db_path)
+{
+    if (sqlite3_open(db_path, &db) != SQLITE_OK) {
+        printf("[services_init] Failed to open DB: %s\n", sqlite3_errmsg(db));
+        return 0;
+    }
+    printf("[services_init] DB opened at %s\n", db_path);
+    return 1;
+}
+
+// -----------------------------
+// Create a new user
+// -----------------------------
+int services_create_user(const char *username, const char *password)
+{
+    if (!db) {
+        printf("[services_create_user] DB not initialized\n");
+        return 0;
     }
 
-    const char *sql = "CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT);";
-    char *err = NULL;
-    if (sqlite3_exec(db, sql, 0, 0, &err) != SQLITE_OK) {
-        fprintf(stderr, "DB error: %s\n", err);
-        sqlite3_free(err);
-        exit(1);
-    }
-}
-
-int services_validate_user(const char *username, const char *password) {
-/*    sqlite3_stmt *stmt;
-    const char *sql = "SELECT password_hash FROM users WHERE username = ?;";
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) return 0;
-    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_STATIC);
-
-    int rc = sqlite3_step(stmt);
-    int result = 0;
-    if (rc == SQLITE_ROW) {
-        const char *hash = (const char *)sqlite3_column_text(stmt, 0);
-        if (bcrypt_checkpw(password, hash) == 0) result = 1;
-    }
-    sqlite3_finalize(stmt);
-    return result;
-*/
-    sqlite3_stmt *stmt;
-char sql[256];
-snprintf(sql, sizeof(sql), "SELECT password_hash FROM users WHERE username='%s';", username);
-printf("[DEBUG] SQL: %s\n", sql);
-
-if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
-    printf("[DEBUG] Prepare failed: %s\n", sqlite3_errmsg(db));
-    return 0;
-}
-
-if (sqlite3_step(stmt) != SQLITE_ROW) {
-    printf("[DEBUG] No user found for username: %s\n", username);
-    sqlite3_finalize(stmt);
-    return 0;
-}
-
-const unsigned char *hash = sqlite3_column_text(stmt, 0);
-printf("[DEBUG] Stored hash: %s\n", hash);
-
-int valid = (bcrypt_checkpw(password, (const char *)hash) == 0);
-printf("[DEBUG] Password match: %d\n", valid);
-
-sqlite3_finalize(stmt);
-return valid;
-}
-
-/*
-int services_create_user(const char *username, const char *password) {
-    sqlite3_stmt *stmt;
+    char salt[64];
     char hash[128];
-    bcrypt_gensalt(12, hash);
-    bcrypt_hashpw(password, hash, hash);
-    printf("Creating user: %s\n", username);
-    const char *sql = "INSERT INTO users (username, password) VALUES (?, ?);";
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) return 0;
+
+    // Generate bcrypt salt
+    if (bcrypt_gensalt(12, salt) != 0) {
+        printf("[services_create_user] Failed to generate salt\n");
+        return 0;
+    }
+
+    // Hash password using the salt
+    if (bcrypt_hashpw(password, salt, hash) != 0) {
+        printf("[services_create_user] Failed to hash password\n");
+        return 0;
+    }
+
+    const char *sql =
+        "INSERT INTO users(username, password_hash) VALUES(?, ?);";
+
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        printf("[services_create_user] Prepare failed: %s\n",
+               sqlite3_errmsg(db));
+        return 0;
+    }
 
     sqlite3_bind_text(stmt, 1, username, -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 2, hash, -1, SQLITE_STATIC);
 
     int rc = sqlite3_step(stmt);
-    printf("SQLite result code: %d\n", rc);
-    sqlite3_finalize(stmt);
-    return rc == SQLITE_DONE;
-}
-*/
 
-int services_create_user(const char *username, const char *password) {
-    char hash[128];
-    bcrypt_gensalt(12, hash);
-    bcrypt_hashpw(password, hash, hash);
-
-    char *err = NULL;
-    char sql[256];
-    snprintf(sql, sizeof(sql),
-             "INSERT INTO users(username, password_hash) VALUES('%s', '%s');",
-             username, hash);
-
-    int rc = sqlite3_exec(db, sql, NULL, NULL, &err);
-    if (rc != SQLITE_OK) {
-        printf("SQLite error: %s\n", err);
+    if (rc != SQLITE_DONE) {
+        printf("[services_create_user] Insert failed: %s\n",
+               sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
         return 0;
     }
+
+    sqlite3_finalize(stmt);
+
+    printf("[services_create_user] User created: %s\n", username);
 
     return 1;
 }
 
-int services_get_user(const char *username, User *user) {
+// -----------------------------
+// Validate user login
+// -----------------------------
+int services_validate_user(const char *username, const char *password)
+{
+    if (!db) return 0;
+
+    const char *sql = "SELECT password_hash FROM users WHERE username=?;";
     sqlite3_stmt *stmt;
-    const char *sql = "SELECT username FROM users WHERE username = ?;";
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) return 0;
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        printf("[services_validate_user] Prepare failed: %s\n", sqlite3_errmsg(db));
+        return 0;
+    }
+
     sqlite3_bind_text(stmt, 1, username, -1, SQLITE_STATIC);
 
-    int rc = sqlite3_step(stmt);
-    int result = 0;
-    if (rc == SQLITE_ROW) {
-        strcpy(user->username, (const char *)sqlite3_column_text(stmt, 0));
-        result = 1;
+    int valid = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        const unsigned char *hash = sqlite3_column_text(stmt, 0);
+        printf("[services_validate_user] Stored hash: %s\n", hash);
+
+        if (bcrypt_checkpw(password, (const char *)hash) == 0) {
+            valid = 1;
+        }
+    } else {
+        printf("[services_validate_user] No user found for: %s\n", username);
     }
+
     sqlite3_finalize(stmt);
-    return result;
+    return valid;
+}
+
+// -----------------------------
+// Close DB
+// -----------------------------
+void services_close(void)
+{
+    if (db) {
+        sqlite3_close(db);
+        db = NULL;
+        printf("[services_close] DB closed\n");
+    }
+}
+
+// Fetch user info by username
+// Returns 1 if found, 0 if not
+int services_get_user(const char *username, User *out_user)
+{
+    if (!db) return 0;
+
+    const char *sql = "SELECT id, username, role, is_active, created_at FROM users WHERE username=?;";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        printf("[services_get_user] Prepare failed: %s\n", sqlite3_errmsg(db));
+        return 0;
+    }
+
+    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_STATIC);
+
+    int found = 0;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        out_user->id = sqlite3_column_int(stmt, 0);
+        strncpy(out_user->username, (const char *)sqlite3_column_text(stmt, 1), sizeof(out_user->username)-1);
+        strncpy(out_user->role, (const char *)sqlite3_column_text(stmt, 2), sizeof(out_user->role)-1);
+        out_user->is_active = sqlite3_column_int(stmt, 3);
+        strncpy(out_user->created_at, (const char *)sqlite3_column_text(stmt, 4), sizeof(out_user->created_at)-1);
+        found = 1;
+    } else {
+        printf("[services_get_user] No user found for: %s\n", username);
+    }
+
+    sqlite3_finalize(stmt);
+    return found;
 }
