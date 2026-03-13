@@ -3,3 +3,6 @@ build/
 bluexool
 cookies.txt
 db/*.db
+# Ignore cJSON library
+src/cJSON/
+src/cJSON_Utils.c
