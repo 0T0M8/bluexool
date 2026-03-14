@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "router.h"
-#include "http.h"
-#include "studentsdb.h"
-#include "usersdb.h"
+#include "router/router.h"
+#include "http/http.h"
+#include "services/studentsdb.h"
+#include "services/usersdb.h"
 #include "bcrypt.h"
 
 #define SESSION_EXPIRY_SECONDS 3600  // 1 hour

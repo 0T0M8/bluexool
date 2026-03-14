@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <netinet/in.h>
-#include "router.h"
-#include "studentsdb.h"
+#include "router/router.h"
+#include "services/studentsdb.h"
 
 #define PORT 8081
 #define BACKLOG 10

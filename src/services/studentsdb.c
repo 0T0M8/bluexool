@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
-#include "studentsdb.h"
+#include "services/studentsdb.h"
 
 #define DB_PATH "db/students.db"
 #define DB_SCHEMA_VERSION 2
