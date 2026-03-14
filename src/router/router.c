@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "../services/auth/auth_service.h"
 #include "router/router.h"
 #include "http/http.h"
 #include "services/studentsdb.h"
